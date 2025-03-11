@@ -1,19 +1,18 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext, filedialog
 import asyncio
 import aiohttp
 import sqlite3
 import re
 import os
 import threading
+import fitz  # PyMuPDF
 
 HISTORY_FILE = "chat_history.txt"
 CACHE_DB = 'chat_cache.db'
-
-# Variável global para o loop assíncrono
 async_loop = None
 
-# Função para criar o banco de dados de cache
+# Funções de banco de dados e histórico (mantidas intactas)
 def create_db():
     conn = sqlite3.connect(CACHE_DB)
     c = conn.cursor()
@@ -21,7 +20,6 @@ def create_db():
     conn.commit()
     conn.close()
 
-# Função para verificar o cache
 def check_cache(user_input):
     conn = sqlite3.connect(CACHE_DB)
     c = conn.cursor()
@@ -30,7 +28,6 @@ def check_cache(user_input):
     conn.close()
     return result
 
-# Função para salvar no cache
 def save_to_cache(user_input, response):
     conn = sqlite3.connect(CACHE_DB)
     c = conn.cursor()
@@ -38,7 +35,34 @@ def save_to_cache(user_input, response):
     conn.commit()
     conn.close()
 
-# Função para limpar o chat
+# Funções de PDF adicionadas
+def open_pdf():
+    file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+    if not file_path:
+        return
+    
+    text = extract_text_from_pdf(file_path)
+    if text:
+        preview = text[:1000] + "..." if len(text) > 1000 else text
+        display_message("PDF", f"Prévia do documento ({os.path.basename(file_path)}):\n{preview}", "purple")
+        entry.insert(tk.END, text)
+
+def extract_text_from_pdf(file_path):
+    try:
+        doc = fitz.open(file_path)
+        text = "\n".join([page.get_text("text") for page in doc])
+        return text.strip() or "Nenhum texto encontrado no PDF."
+    except Exception as e:
+        return f"Erro ao processar PDF: {str(e)}"
+
+# Funções de interface mantidas com melhorias
+def display_message(sender, message, color):
+    output_text.config(state=tk.NORMAL)
+    output_text.insert(tk.END, f"\n{sender}: ", color)
+    output_text.insert(tk.END, message + "\n")
+    output_text.config(state=tk.DISABLED)
+    output_text.yview(tk.END)
+
 def clear_chat():
     output_text.config(state=tk.NORMAL)
     output_text.delete("1.0", tk.END)
@@ -46,12 +70,6 @@ def clear_chat():
     with open(HISTORY_FILE, "w", encoding="utf-8") as file:
         file.truncate()
 
-# Função para salvar histórico
-def save_to_history(message):
-    with open(HISTORY_FILE, "a", encoding="utf-8") as file:
-        file.write(message + "\n")
-
-# Função para carregar histórico
 def load_history():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, "r", encoding="utf-8") as file:
@@ -60,15 +78,7 @@ def load_history():
             output_text.config(state=tk.DISABLED)
             output_text.yview(tk.END)
 
-# Função para exibir mensagens
-def display_message(sender, message, color):
-    output_text.config(state=tk.NORMAL)
-    output_text.insert(tk.END, f"\n{sender}: ", color)
-    output_text.insert(tk.END, message + "\n")
-    output_text.config(state=tk.DISABLED)
-    output_text.yview(tk.END)
-
-# Função assíncrona para consultar a API
+# Funções assíncronas e de processamento
 async def query_ollama(prompt):
     cache_response = check_cache(prompt)
     if cache_response:
@@ -85,7 +95,6 @@ async def query_ollama(prompt):
     except Exception as e:
         return f"Erro: {str(e)}"
 
-# Função para processar a resposta
 def process_response(response, user_input, typing_start, typing_end):
     output_text.config(state=tk.NORMAL)
     output_text.delete(typing_start, typing_end)
@@ -93,12 +102,10 @@ def process_response(response, user_input, typing_start, typing_end):
     save_to_history(f"Você: {user_input}\nAI: {response}\n")
     save_to_cache(user_input, response)
 
-# Corrotina para buscar resposta
 async def fetch_response(user_input, typing_start, typing_end):
     response = await query_ollama(user_input)
     root.after(0, lambda: process_response(response, user_input, typing_start, typing_end))
 
-# Função para enviar mensagem
 def send_message():
     user_input = entry.get("1.0", tk.END).strip()
     if not user_input:
@@ -121,21 +128,19 @@ def send_message():
     
     asyncio.run_coroutine_threadsafe(fetch_response(user_input, typing_start, typing_end), async_loop)
 
-# Função para lidar com Enter
 def handle_enter(event):
-    if not event.state & 0x1:  # Verifica se Shift não está pressionado
+    if not event.state & 0x1:
         send_message()
         return "break"
 
-# Configuração da janela principal
+# Configuração da interface gráfica
 root = tk.Tk()
-root.title("Assistente Virtual - DeepSeek R1-7B")
-root.geometry("600x500")
+root.title("Assistente Virtual com PDF - DeepSeek R1-7B")
+root.geometry("720x600")
 root.configure(bg="#f0f0f0")
 
-# Widgets
 entry = scrolledtext.ScrolledText(root, height=4, wrap=tk.WORD)
-entry.grid(row=0, column=0, padx=10, pady=10, columnspan=2, sticky="ew")
+entry.grid(row=0, column=0, padx=10, pady=10, columnspan=3, sticky="ew")
 entry.bind("<Return>", handle_enter)
 
 send_button = ttk.Button(root, text="Enviar", command=send_message)
@@ -144,24 +149,25 @@ send_button.grid(row=1, column=0, pady=5, sticky="ew")
 clear_button = ttk.Button(root, text="Limpar", command=clear_chat)
 clear_button.grid(row=1, column=1, pady=5, sticky="ew")
 
-output_text = scrolledtext.ScrolledText(root, height=20, wrap=tk.WORD, state=tk.DISABLED)
-output_text.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+pdf_button = ttk.Button(root, text="Abrir PDF", command=open_pdf)
+pdf_button.grid(row=1, column=2, pady=5, sticky="ew")
 
-# Configuração de cores
+output_text = scrolledtext.ScrolledText(root, height=20, wrap=tk.WORD, state=tk.DISABLED)
+output_text.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+
 output_text.tag_config("blue", foreground="blue")
 output_text.tag_config("green", foreground="green")
 output_text.tag_config("gray", foreground="gray")
+output_text.tag_config("purple", foreground="#800080")
 
-# Ajustes de layout
 root.grid_rowconfigure(2, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
+root.grid_columnconfigure(2, weight=1)
 
-# Inicialização
 create_db()
 load_history()
 
-# Loop assíncrono em thread separada
 def start_async_loop():
     global async_loop
     async_loop = asyncio.new_event_loop()
@@ -170,5 +176,4 @@ def start_async_loop():
 
 threading.Thread(target=start_async_loop, daemon=True).start()
 
-# Iniciar aplicação
 root.mainloop()
