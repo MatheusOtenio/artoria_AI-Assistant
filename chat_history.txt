@@ -1,0 +1,40 @@
+Você: Oi, bom dia
+AI: Oi! Bom dia deu! Como posso ajudá-lo hoje? 😊
+
+Você: você consegue pesquisar coisas na internet?
+AI: Okay, the user is asking if I can search the internet. I need to respond clearly.
+
+I know that as an AI, I don't have access to live internet information or personal data.
+
+But I should let them know I'm here to help with any questions they have and provide accurate info based on what's available publicly.
+
+
+Desculpe, não posso pesquisar na internet. Estou aqui para ajudar com informações e perguntas gerais. Se você tiver alguma dúvida ou precisar de ajuda com algo específico, estou à disposição!
+
+Você: quanto é 1+2
+AI: Primeiro, identifico os números que precisam ser somados: 1 e 2.
+
+Em seguida, aplico a operação de adição ao par de números.
+
+Finalmente, concluo que o resultado da soma de 1 com 2 é 3.
+
+
+Para resolver \(1 + 2\), seguimos os seguintes passos:
+
+**Passo 1:** Identificar os números que precisam ser somados. Neste caso, os números são **1** e **2**.
+
+**Passo 2:** Aplicar a operação de adição aos dois números.
+\[
+1 + 2
+\]
+
+**Passo 3:** Realizar a soma.
+\[
+1 + 2 = 3
+\]
+
+Portanto, o resultado final é:
+\[
+\boxed{3}
+\]
+
