@@ -30,55 +30,50 @@ O Assistente Virtual é uma aplicação desktop com interface gráfica que combi
    - Modelo DeepSeek R1-7B instalado: `ollama pull deepseek-r1:7b`
 
 2. Instalar dependências:
+
    ```bash
    pip install -r requirements.txt
    ```
 
-Conteúdo do requirements.txt:
+   Dependências:
 
-Copy
-aiohttp>=3.9.3
-PyMuPDF>=1.23.8
+   - aiohttp >= 3.9.3
+   - PyMuPDF >= 1.23.8
 
-Uso
-Iniciar o aplicativo:
-python assistente.py
+   Uso:
+   Para iniciar o aplicativo, execute:
+   $ python assistente.py
 
-Funcionalidades principais:
+   Funcionalidades:
 
-Chat: Digite sua mensagem e clique em "Enviar" ou pressione Enter
+   - Chat: Digite sua mensagem e pressione Enter ou clique em "Enviar".
+   - PDF: Extraia texto de documentos clicando em "Abrir PDF".
+   - Limpar: Use o comando /limpar ou o botão dedicado para reiniciar a conversa.
+   - Histórico: As conversas são mantidas automaticamente entre sessões.
 
-PDF: Clique em "Abrir PDF" para extrair texto de documentos
+   Atalhos:
 
-Limpar: Use o comando /limpar ou botão dedicado para reiniciar a conversa
+   - Enter: Enviar mensagem
+   - Shift + Enter: Nova linha na caixa de texto
+   - Ctrl + O (Windows/Linux) ou Cmd + O (macOS): Abrir diálogo de arquivo PDF
 
-Histórico: As conversas são mantidas automaticamente entre sessões
+   Requisitos:
+   Sistema Operacional:
 
-Atalhos:
+   - Windows 10+
+   - macOS 12+
+   - Distribuição Linux moderna
 
-Enter: Envia mensagem
+   Hardware Mínimo:
 
-Shift+Enter: Nova linha na caixa de texto
+   - 8GB RAM
+   - 4GB de espaço livre em disco
+   - Conexão com a internet para API Ollama
 
-Ctrl+O (Windows/Linux) ou Cmd+O (macOS): Abrir diálogo de arquivo PDF
+   Dependências Python:
 
-Requisitos
-Sistema Operacional: Windows 10+, macOS 12+, ou distribuição Linux moderna
-
-Hardware Mínimo:
-
-8GB RAM
-
-4GB de espaço livre em disco
-
-Conexão internet para API Ollama
-
-Dependências Python:
-
-aiohttp: Para comunicação assíncrona com a API Ollama
-
-PyMuPDF: Biblioteca de processamento de PDFs
-
-tkinter: Interface gráfica padrão do Python
+   - aiohttp: Comunicação assíncrona com a API Ollama
+   - PyMuPDF: Processamento de PDFs
+   - tkinter: Interface gráfica padrão do Python
 
 **Nota:** Este README assume que o Ollama está configurado e rodando na porta padrão 11434. Para configurações personalizadas, ajuste a URL da API no arquivo `assistente.py`.
