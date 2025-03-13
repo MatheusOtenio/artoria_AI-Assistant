@@ -1,6 +1,6 @@
 # Assistente Virtual
 
-![Interface Demo](demo.png) <!-- Adicione uma imagem da interface se disponível -->
+![Interface Demo](img/1.png) <!-- Adicione uma imagem da interface se disponível -->
 
 ## Introdução
 
